@@ -163,6 +163,14 @@ struct TextreamApp: App {
         .windowResizability(.contentSize)
 
         .commands {
+            CommandMenu("TA Assistant") {
+                Button("Open TA Assistant…") {
+                    TAAssistantWindow.shared.show { text in
+                        TextreamService.shared.overlayController.show(text: text, hasNextPage: false) {}
+                    }
+                }
+                .keyboardShortcut("a", modifiers: [.command, .shift])
+            }
             CommandGroup(replacing: .appInfo) {
                 Button("About Textream") {
                     NotificationCenter.default.post(name: .openAbout, object: nil)
