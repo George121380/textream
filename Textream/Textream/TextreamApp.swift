@@ -7,6 +7,23 @@
 
 import SwiftUI
 import OSLog
+import Carbon
+
+@MainActor
+private func openTAAssistant() {
+    NSApp.activate(ignoringOtherApps: true)
+    TAAssistantWindow.shared.show { text in
+        // Classic scrolling keeps the meeting's system-audio recognizer active.
+        let settings = NotchSettings.shared
+        settings.listeningMode = .classic
+        settings.overlayMode = .pinned
+        if let screen = NSScreen.screens.first(where: { $0.safeAreaInsets.top > 0 }) {
+            settings.notchDisplayMode = .fixedDisplay
+            settings.pinnedScreenID = screen.displayID
+        }
+        TextreamService.shared.overlayController.show(text: text, hasNextPage: false) {}
+    }
+}
 
 extension Notification.Name {
     static let openSettings = Notification.Name("openSettings")
@@ -15,6 +32,8 @@ extension Notification.Name {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
+    private var assistantHotKey: EventHotKeyRef?
+    private var assistantKeyHandler: EventHandlerRef?
     private let lifecycleLogger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "dev.fka.textream",
         category: "AppLifecycle"
@@ -37,6 +56,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.servicesProvider = TextreamService.shared
         NSUpdateDynamicServices()
+        registerAssistantHotKey()
 
         if TextreamService.shared.launchedExternally {
             TextreamService.shared.hideMainWindow()
@@ -75,6 +95,38 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 mainMenu.removeItem(at: index)
             }
         }
+    }
+
+    private func registerAssistantHotKey() {
+        var eventType = EventTypeSpec(eventClass: OSType(kEventClassKeyboard),
+                                      eventKind: UInt32(kEventHotKeyPressed))
+        let handlerStatus = InstallEventHandler(GetApplicationEventTarget(), { _, event, _ in
+            var keyID = EventHotKeyID()
+            guard let event,
+                  GetEventParameter(event, EventParamName(kEventParamDirectObject),
+                                    EventParamType(typeEventHotKeyID), nil,
+                                    MemoryLayout<EventHotKeyID>.size, nil, &keyID) == noErr,
+                  keyID.signature == 0x54414153, keyID.id == 1 else { return OSStatus(eventNotHandledErr) }
+            DispatchQueue.main.async { openTAAssistant() }
+            return noErr
+        }, 1, &eventType, nil, &assistantKeyHandler)
+        guard handlerStatus == noErr else {
+            lifecycleLogger.error("Unable to install TA shortcut handler: \(handlerStatus)")
+            return
+        }
+        let status = RegisterEventHotKey(UInt32(kVK_ANSI_A), UInt32(controlKey | optionKey | cmdKey),
+                                         EventHotKeyID(signature: 0x54414153, id: 1),
+                                         GetApplicationEventTarget(), 0, &assistantHotKey)
+        if status != noErr {
+            lifecycleLogger.error("Control-Option-Command-A is unavailable: \(status)")
+        } else {
+            lifecycleLogger.notice("Registered global TA shortcut Control-Option-Command-A")
+        }
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        if let assistantHotKey { UnregisterEventHotKey(assistantHotKey) }
+        if let assistantKeyHandler { RemoveEventHandler(assistantKeyHandler) }
     }
 
     func windowShouldClose(_ sender: NSWindow) -> Bool {
@@ -165,20 +217,9 @@ struct TextreamApp: App {
         .commands {
             CommandMenu("TA Assistant") {
                 Button("Open TA Assistant…") {
-                    TAAssistantWindow.shared.show { text in
-                        // A Zoom answer must leave system-audio transcription running.
-                        // Classic scrolling does not start a competing microphone recognizer.
-                        let settings = NotchSettings.shared
-                        settings.listeningMode = .classic
-                        settings.overlayMode = .pinned
-                        if let screen = NSScreen.screens.first(where: { $0.safeAreaInsets.top > 0 }) {
-                            settings.notchDisplayMode = .fixedDisplay
-                            settings.pinnedScreenID = screen.displayID
-                        }
-                        TextreamService.shared.overlayController.show(text: text, hasNextPage: false) {}
-                    }
+                    openTAAssistant()
                 }
-                .keyboardShortcut("a", modifiers: [.command, .shift])
+                .keyboardShortcut("a", modifiers: [.control, .option, .command])
             }
             CommandGroup(replacing: .appInfo) {
                 Button("About Textream") {

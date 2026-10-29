@@ -27,7 +27,7 @@ The harness is a separate test application. Its **Read in prompter** button open
 
 ## Use it
 
-1. Open **TA Assistant → Open TA Assistant…** (Command-Shift-A).
+1. Open **TA Assistant → Open TA Assistant…**, or press **Control-Option-Command-A** from Zoom or any other app while Textream is running. This global shortcut replaces Command-Shift-A to avoid Zoom’s mute shortcut.
 2. Expand **Setup** and save your OpenAI API key. It is saved in this Mac's Keychain, not the repository. Each person cloning this fork enters their own key. API usage is billed separately from a ChatGPT subscription.
 3. Pick the speech language and reply language, and optionally paste course definitions, reference notes or examples. The default model is GPT-6.1 Terra (`gpt-6.1-terra`); the model ID is editable. Existing model preferences are preserved, so change the Model ID once if you previously selected another model.
 4. Turn on **Enable TA assistant**. Allow Speech Recognition and Screen & System Audio Recording when macOS asks. Depending on macOS, you may need to quit and reopen the app after granting access.
