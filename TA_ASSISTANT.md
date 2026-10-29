@@ -23,7 +23,7 @@ open /tmp/TextreamTATest.app
 
 This harness was compiled and launched locally with Xcode 14.1 on macOS 15.7.3. Startup, the missing-key guard, question editing, and conversation clearing were checked in the UI. It uses the same real system-audio capture, OpenAI Responses client, Keychain storage, and assistant view as the main app. Automatic replies start off for controlled testing. Enter your own API key in Setup, save it, and enable the assistant when ready. The command above builds a temporary test application; rerun it if the system clears that directory.
 
-The harness is a separate test application. Its **Read in prompter** button opens a simple reader to check answer handoff; it does not validate Textream's original notch overlay. The full app still has the build requirements listed above. A real streamed response from GPT-6.1 Terra was verified locally with the user's key. System-audio transcription remains pending Screen & System Audio Recording permission; Speech Recognition permission is enabled.
+The harness is a separate test application. Its **Read in prompter** button opens a simple reader to check answer handoff; it does not validate Textream's original notch overlay. The full app still has the build requirements listed above. A real streamed response from GPT-6.1 Terra was verified locally with a saved API key. After granting Speech Recognition and Screen & System Audio Recording and restarting the app, an English question played in QuickTime was transcribed correctly and automatically received a complete Terra reply after the pause, without pressing Generate reply. Audio capture was paused after the test.
 
 ## Use it
 
@@ -48,7 +48,7 @@ You can switch off automatic replies and use **Generate reply** when the full qu
 
 ## Validation
 
-The full universal macOS app (Apple Silicon and Intel) and all 36 mock regression checks passed with Xcode 26.3 in [GitHub Actions](https://github.com/George121380/textream/actions/runs/40813211932). The tested application sources are from commit `638a711`.
+The full universal macOS app (Apple Silicon and Intel) and all 36 mock regression checks passed with Xcode 26.3 in [GitHub Actions](https://github.com/George121380/textream/actions/runs/40815599146). The tested application sources, including the Terra default and setup guidance, are from commit `fa77ee4`.
 
 The [TA Assistant checks workflow](https://github.com/George121380/textream/actions/workflows/ta-checks.yml) repeats these checks for relevant pushes and pull requests, and can also be run manually. Each successful run keeps validation logs and a `Textream-TA-unsigned` test artifact for seven days. This artifact is unsigned and not notarized; a successful build does not verify local permissions, audio capture, or a real OpenAI response.
 
@@ -65,7 +65,9 @@ swiftc -swift-version 5 -target "$(uname -m)-apple-macosx13.0" \
 
 The test executable targets macOS 13 solely to check the standalone feature with older toolchains. It does not change the full app's macOS 15 requirement.
 
-Before using this for a live session, check real meeting audio/transcription in both languages, permissions denied/revoked, switching off while generating, and the existing prompter's display/reading behavior. A real GPT-6.1 Terra API response was verified in the local integration harness; the remaining hardware and full-overlay checks have not yet been completed.
+Local live checks passed for manual GPT-6.1 Terra responses and the complete English system-playback → transcription → automatic Terra response flow. The audio test used a synthesized question played in QuickTime: “What is the difference between supervised learning and reinforcement learning?” The transcript retained the complete question and Terra returned a complete comparison.
+
+Before using this for a live session, still check an actual meeting application's audio, Chinese transcription, permission revocation, long-session recognizer rotation, and the existing prompter's display/reading behavior. Those hardware and full-overlay checks have not yet been completed.
 
 ## Files
 
