@@ -12,6 +12,19 @@ open Textream/Textream.xcodeproj
 
 Select the **Textream** macOS scheme, choose **My Mac**, configure your own signing team if needed, and build with **Command-R**. The upstream macOS application requires macOS 15+ and Xcode 16+; Xcode 26 is recommended for this combined macOS/iOS project. Xcode 14 cannot build the full project. The original Homebrew/App Store downloads do not include this fork's changes.
 
+## Local TA integration test without upgrading Xcode
+
+To test the real TA module independently of the full Textream project, run this from the repository root:
+
+```sh
+bash tests/build-integration-app.sh /tmp/TextreamTATest.app
+open /tmp/TextreamTATest.app
+```
+
+This harness was compiled and launched locally with Xcode 14.1 on macOS 15.7.3. Startup, the missing-key guard, question editing, and conversation clearing were checked in the UI. It uses the same real system-audio capture, OpenAI Responses client, Keychain storage, and assistant view as the main app. Automatic replies start off for controlled testing. Enter your own API key in Setup, save it, and enable the assistant when ready. The command above builds a temporary test application; rerun it if the system clears that directory.
+
+The harness is a separate test application. Its **Read in prompter** button opens a simple reader to check answer handoff; it does not validate Textream's original notch overlay. The full app still has the build requirements listed above. Live transcription and a successful OpenAI response remain pending local permissions and an API key.
+
 ## Use it
 
 1. Open **TA Assistant → Open TA Assistant…** (Command-Shift-A).
@@ -62,5 +75,6 @@ Before using this for a live session, build the full app with a supported Xcode,
 - `TAAssistantView.swift`: floating assistant window and setup.
 - `TextreamApp.swift`: menu entry and existing-overlay integration.
 - `TARegressionTests.swift`: executable regression suite outside the app target.
+- `tests/TAIntegrationHarness.swift` and `tests/build-integration-app.sh`: build and run the real TA module as a separate local integration test.
 
 The Xcode macOS target uses a synchronized source folder, so the new files are included automatically. The iOS app is unchanged. Upstream licensing and attribution are preserved.
