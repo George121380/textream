@@ -23,13 +23,13 @@ open /tmp/TextreamTATest.app
 
 This harness was compiled and launched locally with Xcode 14.1 on macOS 15.7.3. Startup, the missing-key guard, question editing, and conversation clearing were checked in the UI. It uses the same real system-audio capture, OpenAI Responses client, Keychain storage, and assistant view as the main app. Automatic replies start off for controlled testing. Enter your own API key in Setup, save it, and enable the assistant when ready. The command above builds a temporary test application; rerun it if the system clears that directory.
 
-The harness is a separate test application. Its **Read in prompter** button opens a simple reader to check answer handoff; it does not validate Textream's original notch overlay. The full app still has the build requirements listed above. Live transcription and a successful OpenAI response remain pending local permissions and an API key.
+The harness is a separate test application. Its **Read in prompter** button opens a simple reader to check answer handoff; it does not validate Textream's original notch overlay. The full app still has the build requirements listed above. A real streamed response from GPT-6.1 Terra was verified locally with the user's key. System-audio transcription remains pending Screen & System Audio Recording permission; Speech Recognition permission is enabled.
 
 ## Use it
 
 1. Open **TA Assistant → Open TA Assistant…** (Command-Shift-A).
 2. Expand **Setup** and save your OpenAI API key. It is saved in this Mac's Keychain, not the repository. Each person cloning this fork enters their own key. API usage is billed separately from a ChatGPT subscription.
-3. Pick the speech language and reply language, and optionally paste course definitions, reference notes or examples. The default model is `gpt-5.4-mini`; the model ID is editable.
+3. Pick the speech language and reply language, and optionally paste course definitions, reference notes or examples. The default model is GPT-6.1 Terra (`gpt-6.1-terra`); the model ID is editable. Existing model preferences are preserved, so change the Model ID once if you previously selected another model.
 4. Turn on **Enable TA assistant**. Allow Speech Recognition and Screen & System Audio Recording when macOS asks. Depending on macOS, you may need to quit and reopen the app after granting access.
 5. Play the meeting audio normally, including through headphones. The question appears in **Question / live transcript**. With **Auto reply after a pause** on, a pause of 1.8 seconds starts a draft; adjust the pause from 1 to 5 seconds.
 6. The suggested answer streams into the assistant window. Review it, read it aloud, copy it manually, or choose **Read in prompter** to display it in Textream's existing overlay. This pauses meeting transcription to avoid two competing speech recognizers; resume audio from the assistant when ready.
@@ -65,7 +65,7 @@ swiftc -swift-version 5 -target "$(uname -m)-apple-macosx13.0" \
 
 The test executable targets macOS 13 solely to check the standalone feature with older toolchains. It does not change the full app's macOS 15 requirement.
 
-Before using this for a live session, build the full app with a supported Xcode, configure a key, and check: real meeting audio/transcription in both languages; permissions denied/revoked; an actual API response; switching off while generating; and the existing prompter's display/reading behavior. These hardware and live API checks have not been performed in this development environment.
+Before using this for a live session, check real meeting audio/transcription in both languages, permissions denied/revoked, switching off while generating, and the existing prompter's display/reading behavior. A real GPT-6.1 Terra API response was verified in the local integration harness; the remaining hardware and full-overlay checks have not yet been completed.
 
 ## Files
 
