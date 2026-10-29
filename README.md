@@ -1,3 +1,7 @@
+> **TA Assistant fork:** This version adds opt-in meeting-audio transcription and streamed OpenAI reply suggestions for office hours. Open **TA Assistant → Open TA Assistant…** after building. See [setup, privacy, testing and limitations](TA_ASSISTANT.md).
+>
+> Clone this fork: `git clone https://github.com/George121380/textream.git`. Each user configures their own API key in the app. Upstream App Store/Homebrew downloads do not include these changes.
+
 <p align="center">
   <img src="Textream/Textream/Assets.xcassets/AppIcon.appiconset/icon_256x256.png" width="128" height="128" alt="Textream icon">
 </p>
