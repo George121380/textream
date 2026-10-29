@@ -1,0 +1,86 @@
+name: TA Assistant checks
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'Textream/**'
+      - 'TARegressionTests.swift'
+      - '.github/workflows/ta-checks.yml'
+  pull_request:
+    paths:
+      - 'Textream/**'
+      - 'TARegressionTests.swift'
+      - '.github/workflows/ta-checks.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ta-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos:
+    runs-on: macos-15
+    timeout-minutes: 20
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: TA regression checks (mock services)
+        shell: bash
+        run: |
+          set -euo pipefail
+          swiftc -swift-version 5 -default-isolation MainActor \
+            -target "$(uname -m)-apple-macosx15.0" \
+            Textream/Textream/TA*.swift TARegressionTests.swift \
+            -o "$RUNNER_TEMP/ta-regression-tests"
+          "$RUNNER_TEMP/ta-regression-tests" | tee ta-tests.log
+
+      - name: Build complete macOS app
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -project Textream/Textream.xcodeproj \
+            -scheme Textream -configuration Release \
+            -destination 'generic/platform=macOS' \
+            -derivedDataPath "$RUNNER_TEMP/TextreamBuild" \
+            ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGNING_ALLOWED=NO build 2>&1 | tee ta-build.log
+
+      - name: Package unsigned test build
+        shell: bash
+        run: |
+          set -euo pipefail
+          ditto -c -k --sequesterRsrc --keepParent \
+            "$RUNNER_TEMP/TextreamBuild/Build/Products/Release/Textream.app" \
+            Textream-TA-unsigned.zip
+
+      - name: Upload test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Textream-TA-unsigned
+          path: Textream-TA-unsigned.zip
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Upload validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TA-validation-logs
+          path: |
+            ta-tests.log
+            ta-build.log
+          retention-days: 7
+          if-no-files-found: ignore
