@@ -29,7 +29,7 @@ final class TAAssistantModel: ObservableObject {
     @Published var error: String?
     @Published var notice: String?
     @Published var courseContext = ""
-    @Published var model = UserDefaults.standard.string(forKey: "ta.model") ?? "gpt-5.4-mini" {
+    @Published var model = UserDefaults.standard.string(forKey: "ta.model") ?? "gpt-6.1-terra" {
         didSet { UserDefaults.standard.set(model, forKey: "ta.model") }
     }
     @Published var locale = UserDefaults.standard.string(forKey: "ta.locale") ?? "en-US" {
