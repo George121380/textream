@@ -76,6 +76,7 @@ struct TAAssistantView: View {
                     }
                     Text("Listens to all Mac playback, including calls in headphones. Your microphone is not captured. Close unrelated audio. A pause is a timing cue, not guaranteed question detection.")
                         .font(.caption).foregroundColor(.secondary)
+                    Toggle("Show completed replies in notch automatically", isOn: $model.autoShowReplies)
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
@@ -110,7 +111,6 @@ struct TAAssistantView: View {
                             NSPasteboard.general.setString(model.answer, forType: .string)
                         }.disabled(model.answer.isEmpty)
                         Button("Read in prompter") {
-                            model.pauseAudio()
                             onRead(model.answer)
                         }.disabled(model.answer.isEmpty || model.generating)
                     }
@@ -161,7 +161,11 @@ struct TAAssistantView: View {
             }.padding(20)
         }
         .frame(minWidth: 500, minHeight: 520)
-        .onAppear { setupExpanded = !model.hasKey }
+        .onAppear {
+            setupExpanded = !model.hasKey
+            model.onReplyReady = onRead
+        }
+        .onDisappear { model.onReplyReady = nil }
     }
 
     private var status: String {

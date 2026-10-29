@@ -29,6 +29,11 @@ final class TAAssistantModel: ObservableObject {
     @Published var error: String?
     @Published var notice: String?
     @Published var courseContext = ""
+    @Published var autoShowReplies = UserDefaults.standard.object(forKey: "ta.autoShowReplies") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(autoShowReplies, forKey: "ta.autoShowReplies") }
+    }
+    /// Called only for a completed, current response, never failed or cancelled text.
+    var onReplyReady: ((String) -> Void)?
     @Published var model = UserDefaults.standard.string(forKey: "ta.model") ?? "gpt-6.1-terra" {
         didSet { UserDefaults.standard.set(model, forKey: "ta.model") }
     }
@@ -196,6 +201,7 @@ final class TAAssistantModel: ObservableObject {
         let notes = courseContext
         let outputLanguage = language
         let recentTurns = history
+        let startedAt = Date()
         responseTask = Task { [weak self] in
             guard let self else { return }
             do {
@@ -209,6 +215,8 @@ final class TAAssistantModel: ObservableObject {
                 self.history = Array(self.history.suffix(3))
                 self.generating = false
                 self.responseTask = nil
+                self.notice = String(format: "Reply ready in %.1f s.", Date().timeIntervalSince(startedAt))
+                if self.autoShowReplies && !self.answer.isEmpty { self.onReplyReady?(self.answer) }
                 self.scheduleReply()
             } catch {
                 guard self.responseID == id, self.enabled else { return }

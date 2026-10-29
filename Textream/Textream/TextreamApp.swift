@@ -166,6 +166,15 @@ struct TextreamApp: App {
             CommandMenu("TA Assistant") {
                 Button("Open TA Assistant…") {
                     TAAssistantWindow.shared.show { text in
+                        // A Zoom answer must leave system-audio transcription running.
+                        // Classic scrolling does not start a competing microphone recognizer.
+                        let settings = NotchSettings.shared
+                        settings.listeningMode = .classic
+                        settings.overlayMode = .pinned
+                        if let screen = NSScreen.screens.first(where: { $0.safeAreaInsets.top > 0 }) {
+                            settings.notchDisplayMode = .fixedDisplay
+                            settings.pinnedScreenID = screen.displayID
+                        }
                         TextreamService.shared.overlayController.show(text: text, hasNextPage: false) {}
                     }
                 }

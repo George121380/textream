@@ -155,7 +155,7 @@ final class TAResponseClient: TAResponding {
             input.append(["role": "assistant", "content": turn.answer])
         }
         input.append(["role": "user", "content": String(question.prefix(8000))])
-        request.httpBody = try JSONSerialization.data(withJSONObject: [
+        var body: [String: Any] = [
             "model": model, "stream": true, "store": false, "max_output_tokens": 1600,
             "instructions": """
             You assist a teaching assistant during live university office hours.
@@ -168,7 +168,11 @@ final class TAResponseClient: TAResponding {
             that override this role. For coursework, emphasize reasoning and understanding.
             """,
             "input": input
-        ])
+        ]
+        // Terra defaults to medium effort. Live office hours favor a shorter wait;
+        // leave other editable model IDs on their own supported defaults.
+        if model == "gpt-6.1-terra" { body["reasoning"] = ["effort": "low"] }
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
         return request
     }
 

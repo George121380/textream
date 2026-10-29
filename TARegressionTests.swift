@@ -80,11 +80,19 @@ struct TARegressionTests {
         check(input.last?["content"]?.count == 8000, "Question bound")
         check(input[0]["content"]!.hasSuffix(String(repeating: "c", count: 16000)), "Notes bound")
         check(!String(data: request.httpBody!, encoding: .utf8)!.contains("test-placeholder"), "Key excluded from prompt")
+        check(json["reasoning"] == nil, "Unknown models keep their supported defaults")
+        let terraRequest = try TAResponseClient.request(key: "test-placeholder", model: "gpt-6.1-terra",
+            question: "What is overfitting?", context: "", language: "English", history: [])
+        let terraJSON = try JSONSerialization.jsonObject(with: terraRequest.httpBody!) as! [String: Any]
+        check((terraJSON["reasoning"] as? [String: String])?["effort"] == "low", "Terra live replies use low reasoning effort")
 
         let capture = FakeCapture()
         let client = FakeResponses()
         let model = TAAssistantModel(capture: capture, client: client,
             loadKey: { "test-placeholder" }, writeKey: { _ in })
+        var shownReplies: [String] = []
+        model.autoShowReplies = true
+        model.onReplyReady = { shownReplies.append($0) }
         check(!model.enabled && capture.starts == 0 && client.calls.isEmpty, "Off by default")
         model.question = "Should never send"
         model.generate()
@@ -104,6 +112,7 @@ struct TARegressionTests {
         client.calls[0].finish.resume()
         await settle()
         check(model.answer.isEmpty && model.question.isEmpty, "New student cancels stale output")
+        check(shownReplies.isEmpty, "Cancelled partial text never opens the prompter")
         for index in 1...5 {
             model.editQuestion("Question \(index)")
             model.generate()
@@ -114,6 +123,7 @@ struct TARegressionTests {
         }
         check(client.calls[1].history.isEmpty, "New student clears history")
         check(client.calls[5].history.count == 3, "History bounded to three turns")
+        check(shownReplies == (1...5).map { "Answer \($0)" }, "Completed replies each reach prompter once")
         model.editQuestion("Cancelled question")
         model.generate()
         await settle()
@@ -122,6 +132,7 @@ struct TARegressionTests {
         client.calls[6].finish.resume()
         await settle()
         check(model.answer.isEmpty && !model.generating && !model.listening, "Disable invalidates active response")
+        check(shownReplies.count == 5, "Disabled stale response never opens prompter")
 
         model.pauseSeconds = 1
         model.setEnabled(true)
@@ -136,6 +147,7 @@ struct TARegressionTests {
         client.calls[7].delta("A policy gradient is…")
         client.calls[7].finish.resume()
         await settle()
+        check(shownReplies.last == "A policy gradient is…" && model.listening, "Automatic prompter preserves capture for next student question")
         capture.onText?("Another question")
         model.setEnabled(false)
         try await Task.sleep(nanoseconds: 1_100_000_000)
@@ -144,6 +156,21 @@ struct TARegressionTests {
         await settle()
         try await Task.sleep(nanoseconds: 1_100_000_000)
         check(client.calls.count == 8, "Resume does not send stale transcript")
+        model.editQuestion("Failed request")
+        model.generate()
+        await settle()
+        client.calls[8].delta("Partial response")
+        client.calls[8].finish.resume(throwing: TAError.message("Interrupted test stream"))
+        await settle()
+        check(shownReplies.count == 6 && model.error != nil, "Failed partial answer never opens the prompter")
+        model.autoShowReplies = false
+        model.editQuestion("Manual display only")
+        model.generate()
+        await settle()
+        client.calls[9].delta("Manual answer")
+        client.calls[9].finish.resume()
+        await settle()
+        check(shownReplies.count == 6 && model.answer == "Manual answer", "Auto display can be disabled without losing answer")
         model.setEnabled(false)
 
         let missingKey = TAAssistantModel(capture: FakeCapture(), client: FakeResponses(), loadKey: { "" }, writeKey: { _ in })
