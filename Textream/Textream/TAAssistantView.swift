@@ -140,7 +140,7 @@ struct TAAssistantView: View {
                             if model.hasKey { Button("Remove") { model.saveKey("") } }
                         }
                         TextField("Model ID", text: $model.model)
-                        Text("Default: gpt-5.4-mini. You can enter another Responses-compatible model your API account can access.")
+                        Text("Default: gpt-6.1-terra (GPT-6.1 Terra). You can enter another Responses-compatible model your API account can access.")
                             .font(.caption).foregroundColor(.secondary)
                         Picker("Speech language", selection: $model.locale) {
                             Text("English (US)").tag("en-US")
