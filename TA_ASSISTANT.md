@@ -50,6 +50,10 @@ You can switch off automatic replies and use **Generate reply** when the full qu
 
 ## Validation
 
+The automatic Zoom/notch update (source commit `13cebb7`) passed all **44** regression checks and the full universal macOS build in [GitHub Actions](https://github.com/George121380/textream/actions/runs/40819904853). The full application was installed and launched on macOS 15.7.3 without upgrading Xcode; the saved Terra key was recognized and system-audio capture was restored. The notch width limit is now 900; a width of 750 was applied locally. Live Zoom follow-up testing is still pending.
+
+For a locally ad-hoc-signed update, macOS may retain the previous binary’s Screen & System Audio Recording requirement even when the switch is on. Remove only Textream’s stale entry, add the newly installed Textream.app from its exact path, and choose Quit & Reopen. Speech Recognition may also need toggling and a restart. Keep the app at a stable install path; do not disable macOS security protections.
+
 The full universal macOS app (Apple Silicon and Intel) and all 36 mock regression checks passed with Xcode 26.3 in [GitHub Actions](https://github.com/George121380/textream/actions/runs/40815599146). The tested application sources, including the Terra default and setup guidance, are from commit `fa77ee4`.
 
 The [TA Assistant checks workflow](https://github.com/George121380/textream/actions/workflows/ta-checks.yml) repeats these checks for relevant pushes and pull requests, and can also be run manually. Each successful run keeps validation logs and a `Textream-TA-unsigned` test artifact for seven days. This artifact is unsigned and not notarized; a successful build does not verify local permissions, audio capture, or a real OpenAI response.
