@@ -1,11 +1,11 @@
 # Textream TA Assistant (macOS)
 
-This fork adds a switchable office-hours assistant using your own OpenAI API key.
+This fork adds a switchable office-hours assistant using your own OpenAI API key. For the fixed, packaged version and agent handoff, start with [CODEX_HANDOFF.md](CODEX_HANDOFF.md).
 
 ## Get this version
 
 ```sh
-git clone https://github.com/George121380/textream.git
+git clone --branch codex/zoom-live-notch https://github.com/George121380/textream.git
 cd textream
 open Textream/Textream.xcodeproj
 ```
@@ -50,11 +50,11 @@ You can switch off automatic replies and use **Generate reply** when the full qu
 
 ## Validation
 
-The automatic Zoom/notch update (source commit `13cebb7`) passed all **44** regression checks and the full universal macOS build in [GitHub Actions](https://github.com/George121380/textream/actions/runs/40819904853). The full application was installed and launched on macOS 15.7.3 without upgrading Xcode; the saved Terra key was recognized and system-audio capture was restored. The notch width limit is now 900; a width of 750 was applied locally. Live Zoom follow-up testing is still pending.
+The latest app source (`8ff2e52`) passed all **44** regression checks and the full universal macOS build in [GitHub Actions](https://github.com/George121380/textream/actions/runs/40820924263). The full application was installed and launched on macOS 15.7.3 without upgrading Xcode; the saved Terra key was recognized and system-audio capture was restored. The notch width limit is 900, with 750 applied locally. Actual Zoom trial questions produced English answers; observed generation times of 1.8–2.0 seconds exclude transcription and pause detection. The revised shortcut opened the assistant locally and registered globally, but physical-keyboard invocation from a foreground Zoom meeting still needs explicit confirmation.
 
 For a locally ad-hoc-signed update, macOS may retain the previous binary’s Screen & System Audio Recording requirement even when the switch is on. Remove only Textream’s stale entry, add the newly installed Textream.app from its exact path, and choose Quit & Reopen. Speech Recognition may also need toggling and a restart. Keep the app at a stable install path; do not disable macOS security protections.
 
-The full universal macOS app (Apple Silicon and Intel) and all 36 mock regression checks passed with Xcode 26.3 in [GitHub Actions](https://github.com/George121380/textream/actions/runs/40815599146). The tested application sources, including the Terra default and setup guidance, are from commit `fa77ee4`.
+An earlier baseline of the full universal macOS app (Apple Silicon and Intel) and all 36 mock regression checks passed with Xcode 26.3 in [GitHub Actions](https://github.com/George121380/textream/actions/runs/40815599146). The tested application sources, including the Terra default and setup guidance, are from commit `fa77ee4`.
 
 The [TA Assistant checks workflow](https://github.com/George121380/textream/actions/workflows/ta-checks.yml) repeats these checks for relevant pushes and pull requests, and can also be run manually. Each successful run keeps validation logs and a `Textream-TA-unsigned` test artifact for seven days. This artifact is unsigned and not notarized; a successful build does not verify local permissions, audio capture, or a real OpenAI response.
 
@@ -73,7 +73,7 @@ The test executable targets macOS 13 solely to check the standalone feature with
 
 Local live checks passed for manual GPT-6.1 Terra responses and the complete English system-playback → transcription → automatic Terra response flow. The audio test used a synthesized question played in QuickTime: “What is the difference between supervised learning and reinforcement learning?” The transcript retained the complete question and Terra returned a complete comparison.
 
-Before using this for a live session, still check an actual meeting application's audio, Chinese transcription, permission revocation, long-session recognizer rotation, and the existing prompter's display/reading behavior. Those hardware and full-overlay checks have not yet been completed.
+Further validation should cover sustained Zoom sessions, Chinese transcription, audio device changes, permission revocation, long-session recognizer rotation, multiple displays and full-screen behavior, and the new global shortcut from a physical keyboard. The short local trials do not establish all of those cases.
 
 ## Files
 

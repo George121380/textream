@@ -1,6 +1,10 @@
-> **TA Assistant fork:** This version adds opt-in meeting-audio transcription and streamed OpenAI reply suggestions for office hours. Open **TA Assistant → Open TA Assistant…** after building. See [setup, privacy, testing and limitations](TA_ASSISTANT.md).
+> **Zoom TA Assistant — Codex handoff:** Use branch `codex/zoom-live-notch`, not the older `master` branch.
 >
-> Clone this fork: `git clone https://github.com/George121380/textream.git`. Each user configures their own API key in the app. Upstream App Store/Homebrew downloads do not include these changes.
+> **[Download the complete handoff package and app](https://github.com/George121380/textream/releases/tag/ta-handoff-2026-10-28)** · **[Start here: CODEX_HANDOFF.md](CODEX_HANDOFF.md)** · [Setup and limitations](TA_ASSISTANT.md)
+>
+> This version turns meeting playback into concise English replies and automatically displays completed answers in the original notch overlay. Model: GPT-6.1 Terra. Shortcut: **Control-Option-Command-A**. Recommended width: **750**.
+>
+> Clone: `git clone --branch codex/zoom-live-notch https://github.com/George121380/textream.git`. Each user enters their own API key in the app. The handoff contains no credentials or meeting data. Upstream App Store/Homebrew downloads do not include this fork's TA features.
 
 <p align="center">
   <img src="Textream/Textream/Assets.xcassets/AppIcon.appiconset/icon_256x256.png" width="128" height="128" alt="Textream icon">

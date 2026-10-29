@@ -1,0 +1,6 @@
+---
+description: Context for maintaining the Textream Zoom TA assistant
+alwaysApply: true
+---
+
+Read the repository's `AGENTS.md` and `CODEX_HANDOFF.md` before making changes. They contain the accepted behavior, exact working branch, build procedure, and verified limitations.

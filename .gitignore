@@ -35,3 +35,7 @@ Pods/
 *~
 *.orig
 *.log
+dist/
+.env
+.env.*
+!.env.example

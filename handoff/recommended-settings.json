@@ -1,0 +1,15 @@
+{
+  "model": "gpt-6.1-terra",
+  "reasoning_effort_for_terra": "low",
+  "speech_language": "en-US",
+  "reply_language": "English",
+  "automatic_reply": true,
+  "pause_seconds": 1.8,
+  "automatic_notch_display": true,
+  "notch_width": 750,
+  "notch_width_maximum": 900,
+  "overlay_mode": "pinned",
+  "reading_mode": "classic",
+  "assistant_shortcut": "Control+Option+Command+A",
+  "capture_enabled_on_launch": false
+}
