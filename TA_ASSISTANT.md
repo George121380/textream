@@ -35,6 +35,10 @@ You can switch off automatic replies and use **Generate reply** when the full qu
 
 ## Validation
 
+The full universal macOS app (Apple Silicon and Intel) and all 36 mock regression checks passed with Xcode 26.3 in [GitHub Actions](https://github.com/George121380/textream/actions/runs/40813211932). The tested application sources are from commit `638a711`.
+
+The [TA Assistant checks workflow](https://github.com/George121380/textream/actions/workflows/ta-checks.yml) repeats these checks for relevant pushes and pull requests, and can also be run manually. Each successful run keeps validation logs and a `Textream-TA-unsigned` test artifact for seven days. This artifact is unsigned and not notarized; a successful build does not verify local permissions, audio capture, or a real OpenAI response.
+
 The four new feature files compile together against the installed macOS SDK. The regression checks exercise UTF-8/SSE framing, error events, request destination and storage settings, bounded context, cancellation, stale results, debounce, missing keys, and new-student resets. They use mocks, with no network, audio or Keychain access.
 
 Run from the repository root:
